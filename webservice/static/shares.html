@@ -1,0 +1,211 @@
+<html>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>
+
+
+        function get_user_shares(username) {
+            $.getJSON(
+                'http://localhost:8080/list/d', 
+                function(data) {
+                    $.each(data, function(key, val) {
+//                        alert(key + ": " + val);
+                        });
+                    }
+            );
+                        
+        }
+        
+        function add_user(username) {
+            $.getJSON(
+                'http://localhost:8080/user/' + username, 
+                function(userObj) {
+                    var users = document.getElementById("users")
+                    user_row_id = add_user_row(users, userObj['imgurl'], userObj['uname'], userObj['location']);
+                    add_shares(username);
+                    }
+            );
+            
+        }
+
+        function add_shares(username) {
+            $.getJSON(
+                'http://localhost:8080/shares/' + username, 
+                function(userObj) {
+                    userObj.forEach(function(asin) {
+                        add_share(username, asin);
+                    });
+                }
+                );
+        }
+        function add_share(username, asin) {
+            $.getJSON(
+                'http://localhost:8080/shares/' + username + "/" + asin, 
+                function(shareObj) {
+                    alert(shareObj['asin'])
+                    var shares = document.getElementById(username + "_shares");
+                    add_product_row(shares, shareObj['imgurl'], shareObj['asinname'], shareObj['text'])
+
+                    }
+            );
+            
+        }        
+        function add_product_row(shares, image_url, prod_name, share_text) {
+            var row=shares.insertRow(0);
+            var cell1=row.insertCell(0);
+            var cell2=row.insertCell(1);
+            var cell3=row.insertCell(2);
+            var cell4=row.insertCell(3);
+            cell1.innerHTML="";
+            cell2.width="50px";
+            cell2.innerHTML="<img src=\""+image_url+"\" width=100px/>";
+            cell3.style.verticalAlign="top"; 
+            cell3.innerHTML="<div class=\"product\">"+prod_name+"</div><div class=\"sharetext\">"+share_text+"</div>";
+            cell4.innerHTML="";
+        }
+        
+        function add_user_row(users, image_url, username, userlocation) {
+            var row=users.insertRow(2);
+            row.id=username+"_data";  
+            var cell1=row.insertCell(0);
+            var cell2=row.insertCell(1);
+            var cell3=row.insertCell(2);
+            var cell4=row.insertCell(3);
+            cell1.innerHTML="";
+            cell2.className= "userimagerow";
+            cell2.innerHTML="<img src=\""+image_url+"\"/>";
+            cell2.style.width="50px"    
+            cell3.innerHTML="<div class=\"username\">"+ username+"</div><div class=\"userlocation\">"+userlocation+"</div><table id=\""+username+"_shares\"></table>";
+            cell4.innerHTML="";
+            
+            return username + "_shares";
+        }
+        
+
+        
+        function after_load(args) {
+            var userObj = JSON.parse('{"uname": "cesar", "fullname": "Cesar Romero", "location": "Seattle, WA", "imgurl": "https://s3.amazonaws.com/socialhack-user-images/cesar.jpg"}')
+            
+            var users = document.getElementById("users")
+            //user_row_id = add_user_row(users, userObj['imgurl'], userObj['uname'], userObj['location']);
+            add_user("cesar")
+            add_user("wiktor")
+            
+//            user_row_id = add_user_row(users, "https://s3.amazonaws.com/socialhack-user-images/wiktor.jpg", "wiktor", "Warszawa");
+
+            var shares = document.getElementById(user_row_id);
+//            add_product_row(shares, "http://ecx.images-amazon.com/images/I/71HWvpoIvgL._SL1500_.jpg", "Hard Drive", "Looking for something I can attach this to...")
+//            add_product_row(shares, "http://ecx.images-amazon.com/images/I/41XNAMr8JCL._SY300_.jpg", "Speakers", "Looking for blah")
+        
+            <!-- Fix this -->
+            $("table tr td table tr td").hover(
+                function () {
+                    $(this).css("background","lightyellow");
+                }, 
+                function () {
+                  $(this).css("background","");
+                }
+            );
+        }
+        
+    </script>
+    <style>
+        
+        hr { color: #008bd1; background: #008bd1; border: 0;  width: 100%; height: 2px; }
+        
+        TD, TH {    
+            font-family: arial,verdana,helvetica,sans-serif;    
+            font-size: 13px;
+        }
+        
+        table {
+            border-width: 0px;
+            width: 500px;
+        }
+        
+        div.username {
+            margin-left: 10; font-family: 'lucida grande', tahoma, verdana; font-size: 13; font-weight: bold
+        }
+        
+        div.userlocation {
+            margin-left: 10; font-family: 'lucida grande', tahoma, verdana; font-size: 13; color: darkgray
+        }
+        
+        div.product {
+            margin-left: 10; font-family: 'lucida grande', tahoma, verdana; font-size: 13; font-weight: bold
+        }
+        
+        div.sharetext {
+            margin-left: 10; font-family: 'lucida grande', tahoma, verdana; font-size: 13; color: darkgray
+        }
+        
+        td.userimagerow {
+            vertical-align: top
+        }
+        
+        td.sharescontainer {
+            vertical-align: top
+        }
+        
+    </style>
+    
+    <body onload="after_load()">
+        
+        <table id='users'>
+            <tr>
+                <td colspan=4><hr/></td>
+            </tr>
+            <tr/>
+<!--            <tr>
+                <td width=10px></td>
+                <td class="userimagerow"><img src="images/people/wiktor.jpg"/></td>
+                <td valign=top>
+                    <div class="username" >Wiktor Lukasik</div>
+                    <div class="userlocation">Seattle, WA</div>
+                    <table id="wiktor_shares1">
+                        <tr>
+                            <td width=10px></td>
+                            <td width=50px><img src="images/product/dbmodeling.jpg" width=100px/></td>
+                            <td valign=top>
+                                <div class="product">Database Modeling and Design</div>
+                                <div class="sharetext">Looking for TV</div>
+                            </td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td width=10px></td>
+                            <td width=50px><img src="images/product/roku3.jpg" width=100px/></td>
+                            <td valign=top>
+                                <div class="product">Roku3</div>
+                                <div class="sharetext">Looking for TV</div>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr onmouseover="">
+                            <td width=10px></td>
+                            <td width=50px><img src="images/product/d60.jpg" width=100px/></td>
+                            <td valign=top>
+                                <div class="product"">Sony EOS 60D</div>
+                                <div class="sharetext">Looking for photo bag</div>
+                            <td></td>
+                        </tr>
+                        
+                    </table>
+
+                </td>
+                <td></td>
+            </tr>
+-->
+<!--            <tr>
+                <td width=10px></td>
+                <td class="userimagerow"><img src="images/people/cesar.jpg"/></td>
+                <td valign=top>
+                    <div class="username">Cesar Romero</div>
+                    <div class="userlocation">Seattle, WA</div>
+                <td></td>
+            </tr>
+-->            
+        </table>
+        
+    </body>
+</html>
