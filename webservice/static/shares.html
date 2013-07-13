@@ -158,7 +158,14 @@
             cell2.width="50px";
             cell2.innerHTML="<img src=\""+image_url+"\" width=100px/>";
             cell3.style.verticalAlign="top"; 
-            cell3.innerHTML="<div class=\"product\">"+prod_name+"</div><div class=\"sharetext\">"+share_text+"</div><a onmouseover=\"this.className='button green'\" onmouseout=\"this.className='button gray'\" href=\"#\" class=\"button gray\">Recommend</a>";
+            
+            var votesText = "<div style=\"float: left; font-size: 10px;margin: 0px; padding: 13px 10px;\">13 votes</div>"
+            var btnText = "<a onmouseover=\"this.className='button green'\" onmouseout=\"this.className='button gray'\" href=\"#\" class=\"button gray\" style=\"float: left\">Recommend</a>";
+            var wrapper = "<div>" + btnText + votesText +  "</dev>";
+            
+            cell3.innerHTML="<div class=\"product\">"+prod_name+"</div><div class=\"sharetext\">"+share_text+"</div>" + wrapper;
+            
+            
             cell4.innerHTML="";
         }
         
@@ -182,7 +189,28 @@
 
         
         function after_load(args) {
+            var QueryString = function () {
+                var query_string = {};
+                var query = window.location.search.substring(1);
+                var vars = query.split("&");
+                for (var i=0;i<vars.length;i++) {
+                  var pair = vars[i].split("=");
+                  if (typeof query_string[pair[0]] === "undefined") {
+                    query_string[pair[0]] = pair[1];
+                  } else if (typeof query_string[pair[0]] === "string") {
+                    var arr = [ query_string[pair[0]], pair[1] ];
+                    query_string[pair[0]] = arr;
+                  } else {
+                    query_string[pair[0]].push(pair[1]);
+                  }
+                } 
+                  return query_string;
+              } ();
+
+            var asinname = unescape(QueryString.asinname);
             
+            var header = document.getElementById("divHeader");
+            header.innerHTML="You are recommending: " + unescape(asinname);
             var users = document.getElementById("users")
             add_user("cesar")
             add_user("wiktor")
@@ -194,7 +222,7 @@
     <body onload="after_load()">
         <table id='users'>
             <tr>
-                <td colspan=4><hr/></td>
+                <td colspan=4><div id="divHeader" style="background-color: rgb(192,219,242); padding: 5px; margin: 0px; border-width: 1px; border-radius: 3px; border-style: solid; border-color: #008bd1">You are recommending:  </div><br/></td>
             </tr>
             <tr/>
         </table>        
