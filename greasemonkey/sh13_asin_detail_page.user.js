@@ -26,8 +26,11 @@ function readCookie(name) {
 
 // Shares a product (asks for recommendation)
 function shareAsin() {
-    alert("Sending!")    
-    var theUrl = "http://localhost:8080/share/" + username + "/" + asin + "/" + pname
+    var shareText = prompt("Enter message for your friends!");
+    
+    shareText = escape(shareText);
+    product = escape(pname);
+    var theUrl = "http://localhost:8080/shares/" + username + "/" + asin + "?product=" + product + "&sharetext=" + shareText;
     var xmlHttp = null;
 
     xmlHttp = new XMLHttpRequest();
@@ -36,6 +39,8 @@ function shareAsin() {
     return xmlHttp.responseText;
 		
 }
+
+var username = prompt("Enter your username")
 
 // Get ASIN and product name
 var pname = document.getElementById("btAsinTitle").innerHTML
@@ -74,14 +79,15 @@ elmFoo.parentNode.insertBefore(recBtn, elmFoo.nextSibling);
 // Add click listeners
 shareBtn.addEventListener('click', shareAsin, false);
 recBtn.addEventListener('click', function aaa() {
-	p = popupwindow("http://localhost:8080/static/shares.html?asinname=" + escape(pname), "Hello", 600,600);
+	p = popupwindow("http://localhost:8080/static/shares.html?user="+username+"&asin=" +asin+ "&asinname=" + escape(pname), "Hello", 600,600);
 	p.asinName = "Some value";
 	
     }, false);
 
 // Get login name for the user, should be the same as FB
-var username = readCookie("socialhackuser")
-if (username == null) {
-    username = prompt("Enter your username")
-    document.cookie = "socialhackuser=" + response
-} 
+//var username = readCookie("socialhackuser")
+//if (username == null) {
+//    username = prompt("Enter your username")
+//    document.cookie = "socialhackuser=" + response
+//
+//alert(readCookie('socialhackuser'));

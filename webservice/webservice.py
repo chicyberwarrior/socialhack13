@@ -40,7 +40,7 @@ class Shares(object):
         
         parts = name.split('/')
         
-        if len(parts) == 2:
+        if len(parts) == 4:
             return json.dumps(repo.get_share(parts[0], parts[1]))
             #j = json.dumps({
             #    'uname': name,
@@ -56,14 +56,17 @@ class Shares(object):
 #            return json.dumps(["A1234","B1234","C1234"])
             return json.dumps(repo.get_shares(parts[0]))
 
- 
+class Products(object):
+    def GET(self, name):
+        web.header('Content-Type', 'application/json')
+        
+        return json.dumps(repo.get_product(name))
 
 urls = (
     '/user/(.*)', 'User',
-    '/friends/(.*)', 'Friends'
-   ,
-    '/shares/(.*)', 'Shares'
-
+    '/friends/(.*)', 'Friends',
+    '/shares/(.*)', 'Shares',
+    '/product/(.*)', 'Products'
     )
 
 if __name__ == "__main__":

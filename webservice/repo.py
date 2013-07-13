@@ -15,6 +15,7 @@ sql_query_list_share = "SELECT * FROM SHARES WHERE UNAME = '%s' AND ASIN = '%s'"
 
 sql_query_product_exists = "SELECT COUNT(*) FROM PRODUCTS where asin = '%s'"
 sql_insert_product = "INSERT INTO PRODUCTS (asin, url, imgurl, name) VALUES ('%s', '%s', '%s', '%s')"
+sql_query_list_product = "SELECT * FROM PRODUCTS WHERE asin = '%s'";
 
 #================================================================================
 # UTIL
@@ -34,11 +35,31 @@ def row_to_dict(cursor, row):
 # PRODUCT
 #================================================================================
 
+def get_product(asin):
+    if asin is None:
+        logging.error("get_product() received null value")
+        
+    asin = asin.strip()
+    
+    logging.info("Fetching details of product %s" % asin)
+    if len(asin) == 0:
+        logging.error("get_product() received empty value")
+        return {}
+    else:
+        if product_exists(asin):
+            cursor = get_db_connection().execute(sql_query_list_product % asin)
+            row = cursor.fetchone()        
+            prod = row_to_dict(cursor, row)
+            logging.info("Product details: %s" % prod)
+            return prod
+        else:
+            return {}
+        
 def product_exists(asin):
     if asin is None:
         logging.error("product_exists() received null value")
         
-    asin = asin.strip().lower()
+    asin = asin.strip()
     
     logging.info("Checking if product with asin %s exists" % asin)
     if len(asin) == 0:
@@ -63,6 +84,7 @@ def add_product(product):
         con.commit()
     else:
         pass
+
     
 
 #================================================================================
@@ -150,5 +172,4 @@ def get_share(user, asin):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     
-    product_exists('a123')
-    add_product({'asin': 'b123', 'name':'test', 'url':'http://a', 'imgurl':'http://b'})
+    print get_product('B0072O5UXE')
