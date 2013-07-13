@@ -62,11 +62,29 @@ class Products(object):
         
         return json.dumps(repo.get_product(name))
 
+class Recommendations(object):
+    def GET(self, name):
+        web.header('Content-Type', 'application/json')
+        
+        parts = name.split('/')
+        logging.info("Adding recommendation args: " + name)
+        if len(parts) == 4:
+            if parts[0].lower().strip() == "add":
+                self.add(parts[1], parts[2], parts[3])
+            else:
+                return '{}'
+        else:
+            return '{}'
+    
+    def add(self, user, fromasin, toasin):
+        repo.add_recommendation(user, fromasin, toasin)
+    
 urls = (
     '/user/(.*)', 'User',
     '/friends/(.*)', 'Friends',
     '/shares/(.*)', 'Shares',
-    '/product/(.*)', 'Products'
+    '/product/(.*)', 'Products',
+    '/rec/(.*)', 'Recommendations'
     )
 
 if __name__ == "__main__":

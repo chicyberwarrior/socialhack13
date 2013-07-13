@@ -17,6 +17,25 @@ sql_query_product_exists = "SELECT COUNT(*) FROM PRODUCTS where asin = '%s'"
 sql_insert_product = "INSERT INTO PRODUCTS (asin, url, imgurl, name) VALUES ('%s', '%s', '%s', '%s')"
 sql_query_list_product = "SELECT * FROM PRODUCTS WHERE asin = '%s'";
 
+sql_insert_rec = "INSERT INTO RECOMMENDATIONS (RECOMMENDER, REQUESTEDASIN, RECOMMENDEDASIN) VALUES ('%s','%s','%s')"
+
+#================================================================================
+# RECOMMENDATIONS
+#================================================================================
+def add_recommendation(user, fromasin, toasin):
+    try:
+        logging.info("Adding recomendation %s for %s by %s." %(fromasin, toasin, user))
+        sql = sql_insert_rec % (user, toasin, fromasin)
+        logging.info("Add recommendation sql: " + sql)
+        con = get_db_connection()
+        con.execute(sql)
+        con.commit()    
+        
+    except Exception, e:
+        print e
+        logging.error("Duplicate recommendation: %s, %s, %s" % (user, fromasin, toasin))
+
+
 #================================================================================
 # UTIL
 #================================================================================
@@ -172,4 +191,4 @@ def get_share(user, asin):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     
-    print get_product('B0072O5UXE')
+    add_recommendation('wiktor', 'A', 'B')
