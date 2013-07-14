@@ -81,6 +81,24 @@ def add_recommendation(user, fromasin, shareid):
         print e
         logging.error("Duplicate recommendation: %s, %s, %s" % (user, fromasin, shareid))
 
+def get_recommendation_counts(shareid):
+    logging.info("Getting recommendations count for shareid %s" % shareid)
+    con = get_db_connection()
+
+    try:
+        c = con.execute("SELECT recommendedasin, count(*) as CNT FROM recommendations where shareid=%s group by recommendedasin" %shareid)
+        
+        results = []
+        for r in c:
+            d = row_to_dict(c, r)
+            logging.info("Count of recommendations for asin %s for shareid %s: %s" % (d['recommendedasin'], shareid, d['CNT']))
+            results.append(d)
+            
+        return results
+    except Exception:
+        logging.error("Failed to list counts of recommendations for share %s" % shareid)
+
+    return []
 
 #================================================================================
 # UTIL
@@ -263,4 +281,4 @@ def add_share(user, asin, text):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     
-    add_recommendation("www", "AZ12", 45)
+    print get_recommendation_counts(45)

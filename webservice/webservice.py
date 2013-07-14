@@ -91,12 +91,16 @@ class Recommendations(object):
         web.header('Content-Type', 'application/json')
         
         parts = name.split('/')
-        logging.info("Adding recommendation args: " + name)
+            
         if len(parts) == 4:
             if parts[0].lower().strip() == "add":
                 self.add(parts[1], parts[2], parts[3])
             else:
                 return '{}'
+        elif len(parts) == 2:
+            if parts[0].lower().strip() == "count":
+                print "Counting recommendations for shareid " + parts[1]
+                return repo.get_recommendation_counts(int(parts[1]))
         else:
             return '{}'
     
