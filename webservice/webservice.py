@@ -83,9 +83,16 @@ class Shares(object):
 class Products(object):
     def GET(self, name):
         web.header('Content-Type', 'application/json')
-        
-        return json.dumps(repo.get_product(name))
 
+        parts = name.split('/')
+        
+        if len(parts) == 1:
+            return json.dumps(repo.get_product(name))
+        else:
+            if parts[0] == "add":
+                print "Adding product: " + name                
+                repo.add_product({'asin':parts[2], 'url':web.input()['url'], 'imgurl':web.input()['imgurl'], 'name':urllib.unquote(web.input()['product'])})
+                
 class Recommendations(object):
     def GET(self, name):
         web.header('Content-Type', 'application/json')

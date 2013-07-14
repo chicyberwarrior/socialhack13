@@ -44,6 +44,21 @@ function shareAsin() {
 		
 }
 
+function addProduct() {
+    product = escape(pname);
+    imageurl = escape(imgurl);
+    produrl = escape(window.location)
+
+    var theUrl = "http://localhost:8080/shares/add/" + username  + "/" + asin + "?product=" + product + "&imgurl=" + imageurl + "&url=" + produrl;
+    var xmlHttp = null;
+
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false );
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
+
 var asin = "unk";
 var username = "joe";
 if (window.top != window.self) {
@@ -133,5 +148,7 @@ if (window.top != window.self) {
 		p.asinName = "Some value";
 		
 	    }, false);
-    }    
+    }
+    
+    addProduct();
 }
