@@ -5,7 +5,7 @@ import repo
 import logging
 import urllib
 import requests
-import facebook
+#import facebook
 
 environment = 'TEST'
 
@@ -60,16 +60,17 @@ class Shares(object):
     def sendFacebookNotification(self):
         if (environment == 'TEST'):
             logging.info( 'In Test Mode. Not sending facebook notification')
+            print( 'In Test Mode. Not sending facebook notification')
             return
         TOKEN = '216276655191901|EevYd4yaUFsu9oL8iDiOkUAnvl8'
-        FACEBOOK_USER_ID='544720577' # Facebook id of Amazon user requesting recommendation. Change this
-        FACEBOOK_FRIENDS_USER_IDS=['750367097'] # Facebook id of friend replying to recommendation. You can get ids from http://findmyfacebookid.com/
+        FACEBOOK_USER_ID='659497539' # Facebook id of Amazon user requesting recommendation. current cesar's facebook id
+        FACEBOOK_FRIENDS_USER_IDS=['678633180','544720577','501699567'] # Facebook id of friend replying to recommendation. You can get ids from http://findmyfacebookid.com/. Currenly dwai, bhupinder, wiktor
 
-        graph = facebook.GraphAPI(TOKEN)
-        profile = graph.get_object(FACEBOOK_USER_ID)
+        #graph = facebook.GraphAPI(TOKEN)
+        #profile = graph.get_object(FACEBOOK_USER_ID)
 
         for id in FACEBOOK_FRIENDS_USER_IDS:
-            FRIEND_MESSAGE='Your friend %s needs your recommendation. Help him out!' % (profile['name'])
+            FRIEND_MESSAGE='Your friend @[%s] needs your recommendation. Help him out!' % (FACEBOOK_USER_ID)
             resp = requests.post('https://graph.facebook.com/%s/notifications?access_token=%s&href=path&template=%s'% (id, TOKEN, FRIEND_MESSAGE))
             logging.info(resp)
 
