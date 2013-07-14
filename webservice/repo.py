@@ -12,12 +12,14 @@ sql_query_list_user = "SELECT * FROM USERS WHERE UNAME = '%s'"
 
 sql_query_list_shares = "SELECT ASIN FROM SHARES WHERE UNAME = '%s'"
 sql_query_list_share = "SELECT * FROM SHARES WHERE UNAME = '%s' AND ASIN = '%s'"
+sql_insert_share = "INSERT INTO SHARES (uname, asin, text) VALUES ('%s','%s','%s')"
 
 sql_query_product_exists = "SELECT COUNT(*) FROM PRODUCTS where asin = '%s'"
 sql_insert_product = "INSERT INTO PRODUCTS (asin, url, imgurl, name) VALUES ('%s', '%s', '%s', '%s')"
 sql_query_list_product = "SELECT * FROM PRODUCTS WHERE asin = '%s'";
 
 sql_insert_rec = "INSERT INTO RECOMMENDATIONS (RECOMMENDER, REQUESTEDASIN, RECOMMENDEDASIN) VALUES ('%s','%s','%s')"
+
 
 #================================================================================
 # RECOMMENDATIONS
@@ -166,15 +168,16 @@ def get_shares(user):
 
 def get_share(user, asin):
     if user is None:
-        logging.error("get_shares() received null value")
+        logging.error("get_share() received null value")
         
     user = user.strip().lower()
     
-    logging.info("Fetching shares of user %s" % user)
+    logging.info("Fetching share of user %s for asin %s" % (user,asin))
     if len(user) == 0:
         logging.error("get_shares() received empty value")
-        return {}
+        return None
     else:
+        logging.info("Get share sql: " + sql_query_list_share % (user, asin))
         cursor = get_db_connection().execute(sql_query_list_share % (user, asin))
     
         for row in cursor:
@@ -183,6 +186,26 @@ def get_share(user, asin):
             logging.info("Shares for user %s: %s" % (user, str(share)))
             return share
 
+def add_share(user, asin, text):
+    
+    share = get_share(user, asin)
+    
+    if share is not None:
+        logging.info("Share already exists for %s, %s" % (user, asin))
+        return None
+    
+    sql_insert_share = "INSERT INTO SHARES (uname, asin, text) VALUES ('%s','%s','%s')"
+    
+    sql = sql_insert_share % (user, asin, text);
+
+    con = get_db_connection()
+    
+    try:
+        logging.info("Inserting share: " + sql)
+        con.execute(sql)
+        con.commit()
+    except Exception:
+        logging.error("Error while inserting share: %s, %s, %s" % (user, asin, share))
     
 #================================================================================
 # other....
@@ -191,4 +214,4 @@ def get_share(user, asin):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     
-    add_recommendation('wiktor', 'A', 'B')
+    get_share("wiktor", "B0072O5UXE")

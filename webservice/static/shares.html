@@ -150,12 +150,15 @@
         function add_share(username, asin) {
             $.getJSON(
                 'http://localhost:8080/product/' + asin, 
-                function(shareObj) {
-                    var shares = document.getElementById(username + "_shares");
-                    add_product_row(shares, asin, shareObj['imgurl'], shareObj['name'], shareObj['text'])
-
-                    }
-            );
+                function(prodObj) {
+                    $.getJSON(
+                        'http://localhost:8080/shares/get/'+username+'/' + asin,
+                        function(shareObj) {
+                            var shares = document.getElementById(username + "_shares");
+                            add_product_row(shares, asin, prodObj['imgurl'], prodObj['name'], shareObj['text'])
+                        });
+                });
+            
             
         }        
         function add_product_row(shares, asin, image_url, prod_name, share_text) {
