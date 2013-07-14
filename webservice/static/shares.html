@@ -155,13 +155,13 @@
                         'http://localhost:8080/shares/get/'+username+'/' + asin,
                         function(shareObj) {
                             var shares = document.getElementById(username + "_shares");
-                            add_product_row(shares, asin, prodObj['imgurl'], prodObj['name'], shareObj['text'])
+                            add_product_row(shares, asin, prodObj['imgurl'], prodObj['name'], shareObj['text'], shareObj['rowid'])
                         });
                 });
             
             
         }        
-        function add_product_row(shares, asin, image_url, prod_name, share_text) {
+        function add_product_row(shares, asin, image_url, prod_name, share_text, shareid) {
             var row=shares.insertRow(0);
             var cell1=row.insertCell(0);
             var cell2=row.insertCell(1);
@@ -173,7 +173,7 @@
             cell3.style.verticalAlign="top"; 
             
             var votesText = "<div style=\"float: left; font-size: 10px;margin: 0px; padding: 13px 10px;\">13 votes</div>"
-            var btnText = "<a onmouseover=\"this.className='button green'\" onmouseout=\"this.className='button gray'\" href=\"rec.html?fromuser="+ document.user  +"&fromasin="+document.asin+"&toasin="+asin+"\" class=\"button gray\" style=\"float: left\">Recommend</a>";
+            var btnText = "<a onmouseover=\"this.className='button green'\" onmouseout=\"this.className='button gray'\" href=\"rec.html?fromuser="+ document.user  +"&shareid="+shareid+"&fromasin="+document.asin+"&toasin="+asin+"\" class=\"button gray\" style=\"float: left\">Recommend</a>";
             var wrapper = "<div>" + btnText + votesText +  "</dev>";
             
             cell3.innerHTML="<div class=\"product\">"+prod_name+"</div><div class=\"sharetext\">"+share_text+"</div>" + wrapper;
@@ -229,8 +229,16 @@
             var header = document.getElementById("divHeader");
             header.innerHTML="You are recommending: " + unescape(asinname);
             var users = document.getElementById("users")
-            add_user("cesar")
-            add_user("wiktor")
+
+            $.getJSON(
+                'http://localhost:8080/friends/' + user, 
+                function(userObj) {
+                    userObj.forEach(function(friend) {
+                        add_user(friend);
+                    });
+                }
+                );
+
           
         }
         

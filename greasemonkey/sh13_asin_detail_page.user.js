@@ -30,18 +30,22 @@ function shareAsin() {
     
     shareText = escape(shareText);
     product = escape(pname);
-    imageurl = escape(imgurl)
+    imageurl = escape(imgurl);
     produrl = escape(window.location)
-    var theUrl = "http://localhost:8080/shares/" + username + "/" + asin + "?product=" + product + "&sharetext=" + shareText + "&imgurl=" + imageurl + "&url=" + produrl;
+
+    var theUrl = "http://localhost:8080/shares/add/" + username  + "/" + asin + "?product=" + product + "&sharetext=" + shareText + "&imgurl=" + imageurl + "&url=" + produrl;
     var xmlHttp = null;
 
     xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false );
+    alert(theUrl);
     xmlHttp.send( null );
     return xmlHttp.responseText;
 		
 }
 
+var asin = "unk";
+var username = "joe";
 if (window.top != window.self) {
     // preventing GM script from running in na iframe...
 } else {
@@ -80,7 +84,7 @@ if (window.top != window.self) {
 
     var imgurl = document.getElementById("main-image").src
     
-    var asin = document.getElementById("ASIN").value
+    asin = document.getElementById("ASIN").value
     if(document.getElementById("ASIN") == null) {
 	alert("Cannot find ASIN");
     }

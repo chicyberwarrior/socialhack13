@@ -100,8 +100,8 @@ class Recommendations(object):
         else:
             return '{}'
     
-    def add(self, user, fromasin, toasin):
-        repo.add_recommendation(user, fromasin, toasin)
+    def add(self, user, fromasin, shareid):
+        repo.add_recommendation(user, fromasin, shareid)
     
 urls = (
     '/user/(.*)', 'User',

@@ -24,11 +24,10 @@
             
             var user = QueryString.fromuser;
             var fromasin = QueryString.fromasin;
-            var toasin = QueryString.toasin;
-            
+            var shareid = QueryString.shareid;
             
              $.getJSON(
-                'http://localhost:8080/rec/add/' + user + "/" + fromasin + "/" + toasin, 
+                'http://localhost:8080/rec/add/' + user + "/" + fromasin + "/" + shareid, 
                 function(data) {
                     $.each(data, function(key, val) {
                         alert('Added!');

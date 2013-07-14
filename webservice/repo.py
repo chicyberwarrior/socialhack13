@@ -10,24 +10,68 @@ dbname = "../db/shack.sqlite"
 sql_query_list_users = "SELECT * FROM USERS"
 sql_query_list_user = "SELECT * FROM USERS WHERE UNAME = '%s'"
 
+sql_query_list_friends = "SELECT * FROM USER_RELATIONS WHERE SRC_USER = '%s'"
+
 sql_query_list_shares = "SELECT ASIN FROM SHARES WHERE UNAME = '%s'"
-sql_query_list_share = "SELECT * FROM SHARES WHERE UNAME = '%s' AND ASIN = '%s'"
+sql_query_list_share = "SELECT rowid, uname, asin, text FROM SHARES WHERE UNAME = '%s' AND ASIN = '%s'"
 sql_insert_share = "INSERT INTO SHARES (uname, asin, text) VALUES ('%s','%s','%s')"
 
 sql_query_product_exists = "SELECT COUNT(*) FROM PRODUCTS where asin = '%s'"
 sql_insert_product = "INSERT INTO PRODUCTS (asin, url, imgurl, name) VALUES ('%s', '%s', '%s', '%s')"
 sql_query_list_product = "SELECT * FROM PRODUCTS WHERE asin = '%s'";
 
-sql_insert_rec = "INSERT INTO RECOMMENDATIONS (RECOMMENDER, REQUESTEDASIN, RECOMMENDEDASIN) VALUES ('%s','%s','%s')"
+#sql_insert_rec = "INSERT INTO RECOMMENDATIONS (RECOMMENDER, REQUESTEDASIN, RECOMMENDEDASIN) VALUES ('%s','%s','%s')"
+sql_insert_rec = "INSERT INTO RECOMMENDATIONS (RECID , RECOMMENDER, RECOMMENDEDASIN, SHAREID) VALUES ('%s','%s','%s', %s)"
+sql_query_rec = "SELECT COUNT(*) FROM RECOMMENDATIONS WHERE RECOMMENDER = '%s' and REQUESTEDASIN = '%s' and RECOMMENDEDASIN = '%s'"
+
+#================================================================================
+# FRIENDS
+#================================================================================    
+def get_friends(user):
+    if user is None:
+        logging.error("get_friends() received null value")
+        
+    user = user.strip().lower()
+    
+    logging.info("Fetching friends of user %s" % user)
+    if len(user) == 0:
+        logging.error("get_friends() received empty value")
+        return {}
+    else:
+        cursor = get_db_connection().execute(sql_query_list_friends % user)
+        friends = []
+        for row in cursor:
+            share = row_to_dict(cursor, row)
+            friends.append(row[1])
+  
+        logging.info("Friends for user %s: %s" % (user, str(friends)))
+        return friends
+    
 
 
 #================================================================================
 # RECOMMENDATIONS
 #================================================================================
-def add_recommendation(user, fromasin, toasin):
+
+def recommendation_exists(user, fromasin, toasin):
+    cursor = get_db_connection().execute(sql_query_rec % (user, toasin, fromasin))
+    row = cursor.fetchone()        
+    logging.info("Recommendation exists: %s" % row[0])
+    
+    if row[0] >= 1:
+        return True
+    else:
+        return False 
+    
+
+
+def add_recommendation(user, fromasin, shareid):
+#    if recommendation_exists(user, fromasin, toasin) == True:
+#        return
+
     try:
-        logging.info("Adding recomendation %s for %s by %s." %(fromasin, toasin, user))
-        sql = sql_insert_rec % (user, toasin, fromasin)
+        logging.info("Adding recomendation %s for %s by %s." %(fromasin, shareid, user))
+        sql = sql_insert_rec % ((user + "-" + str(shareid) + "-" + fromasin), user, fromasin, shareid)
         logging.info("Add recommendation sql: " + sql)
         con = get_db_connection()
         con.execute(sql)
@@ -35,7 +79,7 @@ def add_recommendation(user, fromasin, toasin):
         
     except Exception, e:
         print e
-        logging.error("Duplicate recommendation: %s, %s, %s" % (user, fromasin, toasin))
+        logging.error("Duplicate recommendation: %s, %s, %s" % (user, fromasin, shareid))
 
 
 #================================================================================
@@ -123,8 +167,13 @@ def get_user(name):
         logging.error("get_user() received empty value")
         return {}
     else:
+        print sql_query_list_user % name
         cursor = get_db_connection().execute(sql_query_list_user % name)
-        row = cursor.fetchone()        
+        row = cursor.fetchone()
+        
+        if row is None:
+            return None
+        
         user = row_to_dict(cursor, row)
         logging.info("User details: %s" % user)
         return user
@@ -214,4 +263,4 @@ def add_share(user, asin, text):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     
-    get_share("wiktor", "B0072O5UXE")
+    add_recommendation("www", "AZ12", 45)
