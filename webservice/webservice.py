@@ -48,6 +48,7 @@ class Shares(object):
         
         if len(parts) == 3:
             if parts[0] == "add":
+                sendFacebookNotification()
                 repo.add_product({'asin':parts[2], 'url':web.input()['url'], 'imgurl':web.input()['imgurl'], 'name':urllib.unquote(web.input()['product'])})
                 repo.add_share(parts[1], parts[2], web.input()['sharetext'])
                 return '{}'
@@ -83,9 +84,16 @@ class Shares(object):
 class Products(object):
     def GET(self, name):
         web.header('Content-Type', 'application/json')
-        
-        return json.dumps(repo.get_product(name))
 
+        parts = name.split('/')
+        
+        if len(parts) == 1:
+            return json.dumps(repo.get_product(name))
+        else:
+            if parts[0] == "add":
+                print "Adding product: " + name                
+                repo.add_product({'asin':parts[2], 'url':web.input()['url'], 'imgurl':web.input()['imgurl'], 'name':urllib.unquote(web.input()['product'])})
+                
 class Recommendations(object):
     def GET(self, name):
         web.header('Content-Type', 'application/json')
@@ -100,7 +108,7 @@ class Recommendations(object):
         elif len(parts) == 2:
             if parts[0].lower().strip() == "count":
                 print "Counting recommendations for shareid " + parts[1]
-                return repo.get_recommendation_counts(int(parts[1]))
+                return json.dumps(repo.get_recommendation_counts(int(parts[1])))
         else:
             return '{}'
     
