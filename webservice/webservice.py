@@ -4,6 +4,10 @@ import json
 import repo
 import logging
 import urllib
+import requests
+import facebook
+
+environment = 'TEST'
 
 class User(object):
     def GET(self, name):        
@@ -29,7 +33,7 @@ class Friends(object):
         if len(name) == 0:
             logging.error("Can't finds relationships if you do not provide username.")
             return "{}"
-        else:            
+        else:  
             logging.info("Request to list relationships of user '" + name + "'")
             user = repo.get_friends(name)
             jsonstr = json.dumps(user)
@@ -52,6 +56,28 @@ class Shares(object):
                 
         else:
             return json.dumps(repo.get_shares(parts[0]))
+            
+    def sendFacebookNotification(self):
+		if (environment == 'TEST'):
+			logging.info( 'In Test Mode. Not sending facebook notification')
+			return
+		TOKEN = '216276655191901|EevYd4yaUFsu9oL8iDiOkUAnvl8'
+		FACEBOOK_USER_ID='544720577' # Facebook id of Amazon user requesting recommendation. Change this
+		FACEBOOK_FRIENDS_USER_IDS=['750367097'] # Facebook id of friend replying to recommendation. You can get ids from http://findmyfacebookid.com/
+
+		graph = facebook.GraphAPI(TOKEN)
+		profile = graph.get_object(FACEBOOK_USER_ID)
+
+		for id in FACEBOOK_FRIENDS_USER_IDS:
+			FRIEND_MESSAGE='Your friend %s needs your recommendation. Help him out!' % (profile['name'])
+			resp = requests.post('https://graph.facebook.com/%s/notifications?access_token=%s&href=path&template=%s'% (id, TOKEN, FRIEND_MESSAGE))
+			logging.info(resp)
+
+		USER_MESSAGE = 'You have created a new recommendation request. Access it here!'
+		resp = requests.post('https://graph.facebook.com/%s/notifications?access_token=%s&href=path&template=%s'% (FACEBOOK_USER_ID, TOKEN, USER_MESSAGE))
+		logging.info(resp)
+		return
+
 
 class Products(object):
     def GET(self, name):
