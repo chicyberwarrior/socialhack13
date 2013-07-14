@@ -102,7 +102,17 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>
 
-
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for(var i=0;i < ca.length;i++) {
+                var c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+        }
+        
         function get_user_shares(username) {
             $.getJSON(
                 'http://localhost:8080/list/d', 
@@ -139,16 +149,19 @@
         }
         function add_share(username, asin) {
             $.getJSON(
-                'http://localhost:8080/shares/' + username + "/" + asin, 
-                function(shareObj) {
-                    var shares = document.getElementById(username + "_shares");
-                    add_product_row(shares, shareObj['imgurl'], shareObj['asinname'], shareObj['text'])
-
-                    }
-            );
+                'http://localhost:8080/product/' + asin, 
+                function(prodObj) {
+                    $.getJSON(
+                        'http://localhost:8080/shares/get/'+username+'/' + asin,
+                        function(shareObj) {
+                            var shares = document.getElementById(username + "_shares");
+                            add_product_row(shares, asin, prodObj['imgurl'], prodObj['name'], shareObj['text'])
+                        });
+                });
+            
             
         }        
-        function add_product_row(shares, image_url, prod_name, share_text) {
+        function add_product_row(shares, asin, image_url, prod_name, share_text) {
             var row=shares.insertRow(0);
             var cell1=row.insertCell(0);
             var cell2=row.insertCell(1);
@@ -160,7 +173,7 @@
             cell3.style.verticalAlign="top"; 
             
             var votesText = "<div style=\"float: left; font-size: 10px;margin: 0px; padding: 13px 10px;\">13 votes</div>"
-            var btnText = "<a onmouseover=\"this.className='button green'\" onmouseout=\"this.className='button gray'\" href=\"#\" class=\"button gray\" style=\"float: left\">Recommend</a>";
+            var btnText = "<a onmouseover=\"this.className='button green'\" onmouseout=\"this.className='button gray'\" href=\"rec.html?fromuser="+ document.user  +"&fromasin="+document.asin+"&toasin="+asin+"\" class=\"button gray\" style=\"float: left\">Recommend</a>";
             var wrapper = "<div>" + btnText + votesText +  "</dev>";
             
             cell3.innerHTML="<div class=\"product\">"+prod_name+"</div><div class=\"sharetext\">"+share_text+"</div>" + wrapper;
@@ -208,7 +221,11 @@
               } ();
 
             var asinname = unescape(QueryString.asinname);
-            
+            var asin = QueryString.asin;
+            var user = QueryString.user;
+            document.asin = asin;
+            document.user = user;
+
             var header = document.getElementById("divHeader");
             header.innerHTML="You are recommending: " + unescape(asinname);
             var users = document.getElementById("users")

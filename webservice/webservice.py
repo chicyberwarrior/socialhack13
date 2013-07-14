@@ -3,6 +3,11 @@ import re
 import json
 import repo
 import logging
+import urllib
+import requests
+#import facebook
+
+environment = 'TEST'
 
 class User(object):
     def GET(self, name):        
@@ -28,7 +33,7 @@ class Friends(object):
         if len(name) == 0:
             logging.error("Can't finds relationships if you do not provide username.")
             return "{}"
-        else:            
+        else:  
             logging.info("Request to list relationships of user '" + name + "'")
             user = repo.get_friends(name)
             jsonstr = json.dumps(user)
@@ -38,32 +43,72 @@ class Shares(object):
     def GET(self, name):
         web.header('Content-Type', 'application/json')
         
+        print name
         parts = name.split('/')
         
-        if len(parts) == 2:
-            return json.dumps(repo.get_share(parts[0], parts[1]))
-            #j = json.dumps({
-            #    'uname': name,
-            #    'asin': 'A1234',
-            #    'asinname': "Something",
-            #    'imgurl': 'http://ecx.images-amazon.com/images/I/41XNAMr8JCL._SY300_.jpg',
-            #    'url':"http://www.amazon.com/gp/product/B003N9SR00/ref=s9_simh_gw_p422_d0_i3?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=center-2&pf_rd_r=1TD8CVHMB58B63MAJDXZ&pf_rd_t=101&pf_rd_p=1389517282&pf_rd_i=507846",
-            #    'text': "Help me!"
-            #    })
-            #
-            #return j
+        if len(parts) == 3:
+            if parts[0] == "add":
+                repo.add_product({'asin':parts[2], 'url':web.input()['url'], 'imgurl':web.input()['imgurl'], 'name':urllib.unquote(web.input()['product'])})
+                repo.add_share(parts[1], parts[2], web.input()['sharetext'])
+                return '{}'
+            else:
+                return json.dumps(repo.get_share(parts[1], parts[2]))
+                
         else:
-#            return json.dumps(["A1234","B1234","C1234"])
             return json.dumps(repo.get_shares(parts[0]))
+            
+    def sendFacebookNotification(self):
+        if (environment == 'TEST'):
+            logging.info( 'In Test Mode. Not sending facebook notification')
+            print( 'In Test Mode. Not sending facebook notification')
+            return
+        TOKEN = '216276655191901|EevYd4yaUFsu9oL8iDiOkUAnvl8'
+        FACEBOOK_USER_ID='659497539' # Facebook id of Amazon user requesting recommendation. current cesar's facebook id
+        FACEBOOK_FRIENDS_USER_IDS=['678633180','544720577','501699567'] # Facebook id of friend replying to recommendation. You can get ids from http://findmyfacebookid.com/. Currenly dwai, bhupinder, wiktor
 
- 
+        #graph = facebook.GraphAPI(TOKEN)
+        #profile = graph.get_object(FACEBOOK_USER_ID)
 
+        for id in FACEBOOK_FRIENDS_USER_IDS:
+            FRIEND_MESSAGE='Your friend @[%s] needs your recommendation. Help him out!' % (FACEBOOK_USER_ID)
+            resp = requests.post('https://graph.facebook.com/%s/notifications?access_token=%s&href=path&template=%s'% (id, TOKEN, FRIEND_MESSAGE))
+            logging.info(resp)
+
+        USER_MESSAGE = 'You have created a new recommendation request. Access it here!'
+        resp = requests.post('https://graph.facebook.com/%s/notifications?access_token=%s&href=path&template=%s'% (FACEBOOK_USER_ID, TOKEN, USER_MESSAGE))
+        logging.info(resp)
+        return
+
+
+class Products(object):
+    def GET(self, name):
+        web.header('Content-Type', 'application/json')
+        
+        return json.dumps(repo.get_product(name))
+
+class Recommendations(object):
+    def GET(self, name):
+        web.header('Content-Type', 'application/json')
+        
+        parts = name.split('/')
+        logging.info("Adding recommendation args: " + name)
+        if len(parts) == 4:
+            if parts[0].lower().strip() == "add":
+                self.add(parts[1], parts[2], parts[3])
+            else:
+                return '{}'
+        else:
+            return '{}'
+    
+    def add(self, user, fromasin, toasin):
+        repo.add_recommendation(user, fromasin, toasin)
+    
 urls = (
     '/user/(.*)', 'User',
-    '/friends/(.*)', 'Friends'
-   ,
-    '/shares/(.*)', 'Shares'
-
+    '/friends/(.*)', 'Friends',
+    '/shares/(.*)', 'Shares',
+    '/product/(.*)', 'Products',
+    '/rec/(.*)', 'Recommendations'
     )
 
 if __name__ == "__main__":

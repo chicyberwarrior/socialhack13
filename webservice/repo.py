@@ -12,9 +12,31 @@ sql_query_list_user = "SELECT * FROM USERS WHERE UNAME = '%s'"
 
 sql_query_list_shares = "SELECT ASIN FROM SHARES WHERE UNAME = '%s'"
 sql_query_list_share = "SELECT * FROM SHARES WHERE UNAME = '%s' AND ASIN = '%s'"
+sql_insert_share = "INSERT INTO SHARES (uname, asin, text) VALUES ('%s','%s','%s')"
 
 sql_query_product_exists = "SELECT COUNT(*) FROM PRODUCTS where asin = '%s'"
 sql_insert_product = "INSERT INTO PRODUCTS (asin, url, imgurl, name) VALUES ('%s', '%s', '%s', '%s')"
+sql_query_list_product = "SELECT * FROM PRODUCTS WHERE asin = '%s'";
+
+sql_insert_rec = "INSERT INTO RECOMMENDATIONS (RECOMMENDER, REQUESTEDASIN, RECOMMENDEDASIN) VALUES ('%s','%s','%s')"
+
+
+#================================================================================
+# RECOMMENDATIONS
+#================================================================================
+def add_recommendation(user, fromasin, toasin):
+    try:
+        logging.info("Adding recomendation %s for %s by %s." %(fromasin, toasin, user))
+        sql = sql_insert_rec % (user, toasin, fromasin)
+        logging.info("Add recommendation sql: " + sql)
+        con = get_db_connection()
+        con.execute(sql)
+        con.commit()    
+        
+    except Exception, e:
+        print e
+        logging.error("Duplicate recommendation: %s, %s, %s" % (user, fromasin, toasin))
+
 
 #================================================================================
 # UTIL
@@ -34,11 +56,31 @@ def row_to_dict(cursor, row):
 # PRODUCT
 #================================================================================
 
+def get_product(asin):
+    if asin is None:
+        logging.error("get_product() received null value")
+        
+    asin = asin.strip()
+    
+    logging.info("Fetching details of product %s" % asin)
+    if len(asin) == 0:
+        logging.error("get_product() received empty value")
+        return {}
+    else:
+        if product_exists(asin):
+            cursor = get_db_connection().execute(sql_query_list_product % asin)
+            row = cursor.fetchone()        
+            prod = row_to_dict(cursor, row)
+            logging.info("Product details: %s" % prod)
+            return prod
+        else:
+            return {}
+        
 def product_exists(asin):
     if asin is None:
         logging.error("product_exists() received null value")
         
-    asin = asin.strip().lower()
+    asin = asin.strip()
     
     logging.info("Checking if product with asin %s exists" % asin)
     if len(asin) == 0:
@@ -63,6 +105,7 @@ def add_product(product):
         con.commit()
     else:
         pass
+
     
 
 #================================================================================
@@ -125,15 +168,16 @@ def get_shares(user):
 
 def get_share(user, asin):
     if user is None:
-        logging.error("get_shares() received null value")
+        logging.error("get_share() received null value")
         
     user = user.strip().lower()
     
-    logging.info("Fetching shares of user %s" % user)
+    logging.info("Fetching share of user %s for asin %s" % (user,asin))
     if len(user) == 0:
         logging.error("get_shares() received empty value")
-        return {}
+        return None
     else:
+        logging.info("Get share sql: " + sql_query_list_share % (user, asin))
         cursor = get_db_connection().execute(sql_query_list_share % (user, asin))
     
         for row in cursor:
@@ -142,6 +186,26 @@ def get_share(user, asin):
             logging.info("Shares for user %s: %s" % (user, str(share)))
             return share
 
+def add_share(user, asin, text):
+    
+    share = get_share(user, asin)
+    
+    if share is not None:
+        logging.info("Share already exists for %s, %s" % (user, asin))
+        return None
+    
+    sql_insert_share = "INSERT INTO SHARES (uname, asin, text) VALUES ('%s','%s','%s')"
+    
+    sql = sql_insert_share % (user, asin, text);
+
+    con = get_db_connection()
+    
+    try:
+        logging.info("Inserting share: " + sql)
+        con.execute(sql)
+        con.commit()
+    except Exception:
+        logging.error("Error while inserting share: %s, %s, %s" % (user, asin, share))
     
 #================================================================================
 # other....
@@ -150,5 +214,4 @@ def get_share(user, asin):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     
-    product_exists('a123')
-    add_product({'asin': 'b123', 'name':'test', 'url':'http://a', 'imgurl':'http://b'})
+    get_share("wiktor", "B0072O5UXE")
