@@ -3,6 +3,7 @@
 // @namespace	        http://www.oreilly.com/catalog/greasemonkeyhacks/
 // @description	        example script to alert "Hello world!" on every page
 // @include		http://www.amazon.com/gp/product/*
+// @include		http://www.amazon.com/*/dp/*
 // ==/UserScript==
 
 // Pops up recommendation window
@@ -38,7 +39,6 @@ function shareAsin() {
 
     xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false );
-    alert(theUrl);
     xmlHttp.send( null );
     return xmlHttp.responseText;
 		
