@@ -1,37 +1,39 @@
 // TODO: highlight hands on hover to show that they're clickable;
 // restrict user to one vote; change hand color once vote is cast;
 function vote() {
-	
+    
     var action = $(this).attr('class');
     var type = '.' + action + 's';
     // cast vote
     var count = parseInt($(this).siblings(type).text());
-   console.log(count);
-    var from_asin = $(this).parent().parent().children()[0]['alt'];
-    // TODO: call service to cast vote
+    $(this).siblings(type).text(count+1);
+    console.log(count);
+    var asin = $(this).parent().siblings('.product').attr('alt');
+    // call service to cast vote
     $.ajaxSetup({
     	async: false
-    	});
-    var success = submit_recommendation(document.user,from_asin,document.share_id);
+    });
+    if(asin != 'title' && action != 'dislike')
+	var success = submit_recommendation(document.user,asin,document.share_id);
     $.ajaxSetup({
     	async: true
-    	});
-    if(success){
-	    console.log('one more '+action);
-	    // update total
-	    
-	    var likes = parseInt($(this).siblings('.likes').text())+1;
-	    console.log(likes);
-	    $(this).siblings('.likes').text(likes);
-	    var dislikes = parseInt($(this).siblings('.dislikes').text());
-	    console.log(dislikes);
-	    var newTotal = likes-dislikes;
-	    var tot = $(this).siblings("span:first-of-type");
-	    tot.text(newTotal);
-	    // make sure total is color coded
-	    if(newTotal == -1) tot.attr('class','negative');
-	    else if(newTotal == 0) tot.removeClass();
-	    else if(newTotal == 1) tot.attr('class','positive');
+    });
+    // update view regardless of DB - this is a demo!
+    if(success || true){ 
+	console.log('one more '+action);
+	// update total
+	var likes = parseInt($(this).siblings('.likes').text());
+	console.log(likes);
+	$(this).siblings('.likes').text(likes);
+	var dislikes = parseInt($(this).siblings('.dislikes').text());
+	console.log(dislikes);
+	var newTotal = likes-dislikes;
+	var tot = $(this).siblings("span:first-of-type");
+	tot.text(newTotal);
+	// make sure total is color coded
+	if(newTotal == -1) tot.attr('class','negative');
+	else if(newTotal == 0) tot.removeClass();
+	else if(newTotal == 1) tot.attr('class','positive');
     }
 }
 
@@ -63,8 +65,6 @@ $(document).ready(function() {
     	});
     // register vote handler
     $('.votes img').click(vote);
-    console.log('vote handler on ');
-    console.log($('.votes img'));
 });
 
 function readCookie(name) {
@@ -171,12 +171,10 @@ function createPinWithVotes(prod, cnt, event_id) {
     // votes
     var votes = $('<div class="votes"/>');
     votes.append($('<span class="positive"/>').text(parseInt(cnt,10)));
-    votes.append($('<img class="like" src="/static/img/img_trans.gif" alt="like"/>')
-		 .click(vote));
+    votes.append($('<img class="like" src="/static/img/img_trans.gif" alt="like"/>'));
     votes.append($('<span class="likes"/>').text(parseInt(cnt,10)));
-    votes.append($('<img class="dislike" src="/static/img/img_trans.gif" alt="dislike"/>')
-		 .click(vote));
-    votes.append($('<span class="likes"/>').text(0));
+    votes.append($('<img class="dislike" src="/static/img/img_trans.gif" alt="dislike"/>'));
+    votes.append($('<span class="dislikes"/>').text(0));
     pin.append(votes);
     return pin;
 }
@@ -188,7 +186,7 @@ function addPinWithVotes(asin, prod, cnt, event_id) {
     console.log(pin);
 }
 
-//--------------------------------------------Dwai---------------------------------------------------
+//---------------------Dwai---------------------------------------------------
 function submit_recommendation(user,fromasin,shareid){
     var result;
     $.getJSON(
@@ -196,11 +194,11 @@ function submit_recommendation(user,fromasin,shareid){
         function(data) {
             $.each(data, function(key, val) {
                 if(val=='fail'){
-                    alert("You have already recommended this product");
+                    console.log("You have already recommended this product");
                     result=false;
                 }
                 else{
-                    alert("You have successfully recommended this product");
+                    console.log("You have successfully recommended this product");
                     result=true;
                 }
             });
@@ -218,37 +216,32 @@ function createSearchItemWithRecommendButton(asin,prod, share_id) {
     prodlink.append(prodImg)
     pin.append(prodlink);
     var args = "\'"+document.user+"','"+asin+"','"+share_id+"'";
-	 var button = $('<div class="buttonText"/>');
-	  button.append($("<a class='button' style='float: left' href='#' onclick=\"submit_recommendation("+args+ ");return false;\">Recommend</a>"));
-	 pin.append(button);
+    var button = $('<div class="buttonText"/>');
+    button.append($("<a class='button' style='float: left' href='#' onclick=\"submit_recommendation("+args+ ");return false;\">Recommend</a>"));
+    pin.append(button);
     return pin;
 }
 
 function addSearchItems(share_id) {
-	
-	var asin_list = ['B00A4SQIJA',
-	                 'B000OZC4TG',
-	                 'B0072O5UXE',
-	                 'B00BB5VQCE',
-	                 'B00A29WCA0'];
-	for (var i = 0; i < asin_list.length; i++) {
-		recommendedasin = asin_list[i];
-		  $.getJSON(
-				    'http://localhost:8080/product/' + recommendedasin,
-				    function(prodObj) {
-				    	  	var pin = createSearchItemWithRecommendButton(recommendedasin,prodObj,share_id);
-				    	    var columns = $('#search_cols');
-				    	    columns.prepend(pin);
-				    	    console.log(pin);
-				    
-				    });
-		}
-	
-	
-  
+    var asin_list = ['B00A4SQIJA',
+	             'B000OZC4TG',
+	             'B0072O5UXE',
+	             'B00BB5VQCE',
+	             'B00A29WCA0'];
+    for (var i = 0; i < asin_list.length; i++) {
+	recommendedasin = asin_list[i];
+	$.getJSON(
+	    'http://localhost:8080/product/' + recommendedasin,
+	    function(prodObj) {
+		var pin = createSearchItemWithRecommendButton(recommendedasin,prodObj,share_id);
+		var columns = $('#search_cols');
+		columns.prepend(pin);
+		console.log(pin);
+	    });
+    }
 }
+//-----------------------Dwai---------------------------------------------------
 
-//--------------------------------------------Dwai---------------------------------------------------
 function add_reco_item(recommended, recommendedasin, CNT, share_id) {
     $.getJSON(
 	    'http://localhost:8080/product/' + recommendedasin,
