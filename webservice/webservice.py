@@ -48,7 +48,7 @@ class Shares(object):
         
         if len(parts) == 3:
             if parts[0] == "add":
-                sendFacebookNotification()
+                self.sendFacebookNotification()
                 repo.add_product({'asin':parts[2], 'url':web.input()['url'], 'imgurl':web.input()['imgurl'], 'name':urllib.unquote(web.input()['product'])})
                 repo.add_share(parts[1], parts[2], web.input()['sharetext'])
                 return '{}'
