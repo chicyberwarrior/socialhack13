@@ -65,7 +65,7 @@ def recommendation_exists(user, fromasin, toasin):
     
 
 
-def add_recommendation(user, fromasin, shareid, product):
+def add_recommendation(user, fromasin, shareid):
 #    if recommendation_exists(user, fromasin, toasin) == True:
 #        return
 
@@ -77,7 +77,7 @@ def add_recommendation(user, fromasin, shareid, product):
         con.execute(sql)
         con.commit()    
         
-        add_product(product)
+#        add_product(product)
 #        add_product({'asin':fromasin, 'url':web.input()['url'], 'imgurl':web.input()['imgurl'], 'name':urllib.unquote(web.input()['product'])})
 
     except Exception, e:
