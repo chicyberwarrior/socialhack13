@@ -170,11 +170,13 @@ function createPinWithVotes(prod, cnt, event_id) {
     // pin.append(title);
     // votes
     var votes = $('<div class="votes"/>');
-    votes.append($('<span class="positive"/>').text(cnt));
-    votes.append($('<img class="like" src="/static/img/img_trans.gif" alt="like"/>'));
-    votes.append($('<span class="likes"/>').text(cnt));
-    votes.append($('<img class="dislike" src="/static/img/img_trans.gif" alt="dislike"/>'));
-    votes.append($('<span class="dislikes"/>').text(0));
+    votes.append($('<span class="positive"/>').text(parseInt(cnt,10)));
+    votes.append($('<img class="like" src="/static/img/img_trans.gif" alt="like"/>')
+		 .click(vote));
+    votes.append($('<span class="likes"/>').text(parseInt(cnt,10)));
+    votes.append($('<img class="dislike" src="/static/img/img_trans.gif" alt="dislike"/>')
+		 .click(vote));
+    votes.append($('<span class="likes"/>').text(0));
     pin.append(votes);
     return pin;
 }
@@ -188,23 +190,23 @@ function addPinWithVotes(asin, prod, cnt, event_id) {
 
 //--------------------------------------------Dwai---------------------------------------------------
 function submit_recommendation(user,fromasin,shareid){
-	var result;
-	 $.getJSON(
-            'http://localhost:8080/rec/add/' + user + "/" + fromasin + "/" + shareid, 
-            function(data) {
-                $.each(data, function(key, val) {
-                   	if(val=='fail'){
-                   		alert("You have already recommended this product");
-                   		result=false;
-                   	}
-                   	else{
-                   		alert("You have successfully recommended this product");
-                   		result=true;
-                   	}
-                    });
+    var result;
+    $.getJSON(
+        'http://localhost:8080/rec/add/' + user + "/" + fromasin + "/" + shareid, 
+        function(data) {
+            $.each(data, function(key, val) {
+                if(val=='fail'){
+                    alert("You have already recommended this product");
+                    result=false;
                 }
-        );
-	 return result;
+                else{
+                    alert("You have successfully recommended this product");
+                    result=true;
+                }
+            });
+        }
+    );
+    return result;
 }
 
 function createSearchItemWithRecommendButton(asin,prod, share_id) {
