@@ -22,8 +22,6 @@ function vote() {
 
 // TODO: dynamically populate pinterest view with suggested ASINs and their votes
 $(document).ready(function() {
-    // register vote handler
-    $('.votes img').click(vote);
     // configure tabs
     $(".tab_content").hide(); 
     $("ul.tabs li:first").addClass("active").show(); // Default to first tab
@@ -40,7 +38,12 @@ $(document).ready(function() {
 	$(activeTab).fadeIn(); // Fade the tab in
 	return false;
     });
-
+    // load content
+    load_content();
+    // register vote handler
+    $('.votes img').click(vote);
+    console.log('vote handler on ');
+    console.log($('.votes img'));
 });
 
 function readCookie(name) {
@@ -135,11 +138,41 @@ function add_asin_detail(shares, asin, image_url, prod_name, share_text, url,
 
 }
 
+function createPinWithVotes(prod, cnt, event_id) {
+    var pin = $('<div class="pin"/>');
+    // pic
+    var prodImg = $('<img class="product"/>').attr('src',prod['imgurl']);
+    prodImg.attr('alt',prod['name']);
+    pin.append(prodImg);
+    // title
+    // var title = $('<p class="title"/>').text(prod['name']);
+    // pin.append(title);
+    // votes
+    var votes = $('<div class="votes"/>');
+    votes.append($('<span class="positive"/>').text(cnt));
+    votes.append($('<img class="like" src="/static/img/img_trans.gif" alt="like"/>'));
+    votes.append($('<span class="likes"/>').text(cnt));
+    votes.append($('<img class="dislike" src="/static/img/img_trans.gif" alt="dislike"/>'));
+    votes.append($('<span class="likes"/>').text(0));
+    pin.append(votes);
+    return pin;
+}
+
+function addPinWithVotes(asin, prod, cnt, event_id) {
+    var pin = createPinWithVotes(prod,cnt,event_id);
+    var columns = $('#columns');
+    columns.prepend(pin);
+    console.log(pin);
+}
+
 function add_reco_item(recommended, recommendedasin, CNT, share_id) {
     $.getJSON(
 	    'http://localhost:8080/product/' + recommendedasin,
 	    function(prodObj) {
 
+		// add pin
+		addPinWithVotes(recommendedasin, prodObj, CNT, share_id);
+		    
 		image_url = prodObj['imgurl'];
 		prod_name = prodObj['name'];
 		var separatorRow = recommended.insertRow(0);
@@ -179,7 +212,7 @@ function add_reco_item(recommended, recommendedasin, CNT, share_id) {
 
 }
 
-function after_load(args) {
+function load_content() {
     var QueryString = function() {
 	var query_string = {};
 	var query = window.location.search.substring(1);
