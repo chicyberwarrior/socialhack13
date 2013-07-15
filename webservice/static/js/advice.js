@@ -7,6 +7,8 @@ function vote() {
     var count = parseInt($(this).siblings(type).text());
     $(this).siblings(type).text(count + 1);
     // TODO: call service to cast vote
+    submit_recommendation()
+    
     console.log('one more '+action);
     // update total
     var likes = parseInt($(this).siblings('.likes').text());
@@ -165,6 +167,53 @@ function addPinWithVotes(asin, prod, cnt, event_id) {
     console.log(pin);
 }
 
+//--------------------------------------------Dwai---------------------------------------------------
+function submit_recommendation(user,fromasin,shareid){
+	 $.getJSON(
+            'http://localhost:8080/rec/add/' + user + "/" + fromasin + "/" + shareid, 
+            function(data) {
+                $.each(data, function(key, val) {
+                   	if(val=='fail')
+                   		alert("You have already recommended this product");
+                   	else
+                   		alert("You have successfully recommended this product")
+                    });
+                }
+        );
+}
+
+function createSearchItemWithRecommendButton(asin,prod, cnt, share_id) {
+    var pin = $('<div class="pin"/>');
+    // pic
+    var prodImg = $('<img class="product"/>').attr('src',prod['imgurl']);
+    prodImg.attr('alt',prod['name']);
+    pin.append(prodImg);
+    // title
+    // var title = $('<p class="title"/>').text(prod['name']);
+    // pin.append(title);
+    // votes
+/*    var votes = $('<div class="votes"/>');
+    votes.append($('<span class="positive"/>').text(cnt));
+    votes.append($('<img class="like" src="/static/img/img_trans.gif" alt="like"/>'));
+    votes.append($('<span class="likes"/>').text(cnt));
+    votes.append($('<img class="dislike" src="/static/img/img_trans.gif" alt="dislike"/>'));
+    votes.append($('<span class="likes"/>').text(0));
+    pin.append(votes);*/
+    var args = "\'"+document.user+"','"+asin+"','"+share_id+"'";
+	 var button = $('<div class="buttonText"/>');
+	  button.append($("<a class='button' style='float: left' href='#' onclick=\"submit_recommendation("+args+ ");return false;\">Recommend</a>"));
+	 pin.append(button);
+    return pin;
+}
+
+function addSearchItems(asin, prod, cnt, share_id) {
+    var pin = createSearchItemWithRecommendButton(asin,prod,cnt,share_id);
+    var columns = $('#search_cols');
+    columns.prepend(pin);
+    console.log(pin);
+}
+
+//--------------------------------------------Dwai---------------------------------------------------
 function add_reco_item(recommended, recommendedasin, CNT, share_id) {
     $.getJSON(
 	    'http://localhost:8080/product/' + recommendedasin,
@@ -172,7 +221,10 @@ function add_reco_item(recommended, recommendedasin, CNT, share_id) {
 
 		// add pin
 		addPinWithVotes(recommendedasin, prodObj, CNT, share_id);
-		    
+		//populating search tab
+		addSearchItems(recommendedasin, prodObj, CNT, share_id);    
+		
+		
 		image_url = prodObj['imgurl'];
 		prod_name = prodObj['name'];
 		var separatorRow = recommended.insertRow(0);
