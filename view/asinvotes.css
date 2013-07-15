@@ -1,5 +1,7 @@
 body {
-    background: url(http://subtlepatterns.com/patterns/scribble_light.png) ;
+    /* background: url(http://subtlepatterns.com/patterns/scribble_light.png) ; */
+    /* background: url("http://subtlepatterns.com/patterns/grey_wash_wall.png") repeat scroll 0 0 transparent; */
+    background: url("http://subtlepatterns.com/patterns/mochaGrunge.png") repeat scroll 0 0 transparent;
 }
 
 #wrapper {
@@ -70,18 +72,20 @@ body {
     font-weight: bold;
 }
 
-.pin img.upvote {
+.pin img.like {
     background: url("sprite.png") no-repeat scroll -56px -721px transparent;
     height: 14px;
     top: -1px;
     width: 13px;
+    margin-left: 60px;
 }
 
-.pin img.downvote {
+.pin img.dislike {
     background: url("sprite.png") no-repeat scroll -119px -207px transparent;
     height: 14px;
     top: -1px;
     width: 13px;
+    margin-left: 15px;
 }
 
 /* COLUMNS */
