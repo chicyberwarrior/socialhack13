@@ -166,6 +166,8 @@ def add_product(product):
     
     if product_exists(asin) == 0:
         con = get_db_connection()
+
+        name = name.replace("'", " ")
         con.execute(sql_insert_product % (asin, url, imgurl, name))
         con.commit()
     else:
