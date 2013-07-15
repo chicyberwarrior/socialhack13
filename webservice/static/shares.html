@@ -172,9 +172,9 @@
             cell2.innerHTML="<img src=\""+image_url+"\" width=100px/>";
             cell3.style.verticalAlign="top"; 
             
-            var votesText = "<div style=\"float: left; font-size: 10px;margin: 0px; padding: 13px 10px;\">13 votes</div>"
+            //var votesText = "<div style=\"float: left; font-size: 10px;margin: 0px; padding: 13px 10px;\">13 votes</div>"
             var btnText = "<a onmouseover=\"this.className='button green'\" onmouseout=\"this.className='button gray'\" href=\"rec.html?fromuser="+ document.user  +"&shareid="+shareid+"&fromasin="+document.asin+"&toasin="+asin+"\" class=\"button gray\" style=\"float: left\">Recommend</a>";
-            var wrapper = "<div>" + btnText + votesText +  "</dev>";
+            var wrapper = "<div>" + btnText + "</dev>";
             
             cell3.innerHTML="<div class=\"product\">"+prod_name+"</div><div class=\"sharetext\">"+share_text+"</div>" + wrapper;
             
