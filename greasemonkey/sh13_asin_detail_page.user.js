@@ -110,7 +110,7 @@ if (window.top != window.self) {
 	t2 = "<span class=\"a-button-gradient\"><i class=\"a-icon a-icon-cart\"></i><span class=\"a-button-text\">Recommend</span></span></div>";
 	t1 = t1 + t2;
     
-	t2 = "<div onclick=\"javascript:alert('aaa')\" id=\"share-button\" class=\"a-button a-button-icon a-button-primary a-mt5 a-mb5\" >"
+	t2 = "<div onclick=\"\" id=\"share-button\" class=\"a-button a-button-icon a-button-primary a-mt5 a-mb5\" >"
 	t3 = "<span class=\"a-button-gradient\"><i class=\"a-icon a-icon-cart\"></i><span class=\"a-button-text\">Share</span></span></div>";
 	t2 = t2 + t3;
 	

@@ -102,18 +102,21 @@ class Recommendations(object):
             
         if len(parts) == 4:
             if parts[0].lower().strip() == "add":
-                self.add(parts[1], parts[2], parts[3])
+                if self.add(parts[1], parts[2], parts[3]):
+                    return '{ "status": "ok" }'                    
+                else:
+                    return '{ "status": "fail" }'                    
             else:
-                return '{}'
+                return '{ "status": "fail" }'
         elif len(parts) == 2:
             if parts[0].lower().strip() == "count":
                 print "Counting recommendations for shareid " + parts[1]
                 return json.dumps(repo.get_recommendation_counts(int(parts[1])))
         else:
-            return '{}'
+            return '{ "status": "fail" }'
     
     def add(self, user, fromasin, shareid):
-        repo.add_recommendation(user, fromasin, shareid)
+        return repo.add_recommendation(user, fromasin, shareid)
     
 urls = (
     '/user/(.*)', 'User',

@@ -76,14 +76,15 @@ def add_recommendation(user, fromasin, shareid):
         con = get_db_connection()
         con.execute(sql)
         con.commit()    
-        
+        return True    
 #        add_product(product)
 #        add_product({'asin':fromasin, 'url':web.input()['url'], 'imgurl':web.input()['imgurl'], 'name':urllib.unquote(web.input()['product'])})
 
     except Exception, e:
         print e
         logging.error("Duplicate recommendation: %s, %s, %s" % (user, fromasin, shareid))
-
+        return False
+    
 def get_recommendation_counts(shareid):
     logging.info("Getting recommendations count for shareid %s" % shareid)
     con = get_db_connection()
