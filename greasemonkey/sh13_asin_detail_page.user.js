@@ -49,7 +49,7 @@ function addProduct() {
     imageurl = escape(imgurl);
     produrl = escape(window.location)
 
-    var theUrl = "http://localhost:8080/shares/add/" + username  + "/" + asin + "?product=" + product + "&imgurl=" + imageurl + "&url=" + produrl;
+    var theUrl = "http://localhost:8080/product/add/" + username  + "/" + asin + "?product=" + product + "&imgurl=" + imageurl + "&url=" + produrl;
     var xmlHttp = null;
 
     xmlHttp = new XMLHttpRequest();
@@ -106,8 +106,8 @@ if (window.top != window.self) {
 
     
     if (isNewLayout) {
-	t1 = "<a href=\"http://google.com\" id=\"recommend-button\" class=\"a-button a-button-icon a-button-primary a-mt5 a-mb5\" >"
-	t2 = "<span class=\"a-button-gradient\"><i class=\"a-icon a-icon-cart\"></i><span class=\"a-button-text\">Recommend</span></span></a>";
+	t1 = "<div id=\"recommend-button\" class=\"a-button a-button-icon a-button-primary a-mt5 a-mb5\" >"
+	t2 = "<span class=\"a-button-gradient\"><i class=\"a-icon a-icon-cart\"></i><span class=\"a-button-text\">Recommend</span></span></div>";
 	t1 = t1 + t2;
     
 	t2 = "<div onclick=\"javascript:alert('aaa')\" id=\"share-button\" class=\"a-button a-button-icon a-button-primary a-mt5 a-mb5\" >"
@@ -116,14 +116,20 @@ if (window.top != window.self) {
 	
 	// Create share button
 	var shareBtn = document.createElement('div');
-	shareBtn.innerHTML = t1; 
+	shareBtn.innerHTML = t2; 
 	elmFoo.parentNode.insertBefore(shareBtn, elmFoo.nextSibling);
 
 	// Create recommend button
 	var recBtn = document.createElement('img');
-	recBtn.innerHTML = t2;
+	recBtn.innerHTML = t1;
 	elmFoo.parentNode.insertBefore(recBtn, elmFoo.nextSibling);
 	
+	shareBtn.addEventListener('click', shareAsin, false);
+	recBtn.addEventListener('click', function aaa() {
+		p = popupwindow("http://localhost:8080/static/shares.html?user="+username+"&asin=" +asin+ "&asinname=" + escape(pname), "Hello", 600,600);
+		p.asinName = "Some value";
+		
+	    }, false);
     } else {
 	// Create share button
 	var shareBtn = document.createElement('img');
