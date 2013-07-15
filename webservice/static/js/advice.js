@@ -182,23 +182,14 @@ function submit_recommendation(user,fromasin,shareid){
         );
 }
 
-function createSearchItemWithRecommendButton(asin,prod, cnt, share_id) {
+function createSearchItemWithRecommendButton(asin,prod, share_id) {
     var pin = $('<div class="pin"/>');
     // pic
-    var prodImg = $('<img class="product"/>').attr('src',prod['imgurl']);
+    var prodlink = $('<a  />').attr('href',prod['url']);
+    var prodImg = $('<img width="160px" />').attr('src',prod['imgurl']);
     prodImg.attr('alt',prod['name']);
-    pin.append(prodImg);
-    // title
-    // var title = $('<p class="title"/>').text(prod['name']);
-    // pin.append(title);
-    // votes
-/*    var votes = $('<div class="votes"/>');
-    votes.append($('<span class="positive"/>').text(cnt));
-    votes.append($('<img class="like" src="/static/img/img_trans.gif" alt="like"/>'));
-    votes.append($('<span class="likes"/>').text(cnt));
-    votes.append($('<img class="dislike" src="/static/img/img_trans.gif" alt="dislike"/>'));
-    votes.append($('<span class="likes"/>').text(0));
-    pin.append(votes);*/
+    prodlink.append(prodImg)
+    pin.append(prodlink);
     var args = "\'"+document.user+"','"+asin+"','"+share_id+"'";
 	 var button = $('<div class="buttonText"/>');
 	  button.append($("<a class='button' style='float: left' href='#' onclick=\"submit_recommendation("+args+ ");return false;\">Recommend</a>"));
@@ -206,11 +197,28 @@ function createSearchItemWithRecommendButton(asin,prod, cnt, share_id) {
     return pin;
 }
 
-function addSearchItems(asin, prod, cnt, share_id) {
-    var pin = createSearchItemWithRecommendButton(asin,prod,cnt,share_id);
-    var columns = $('#search_cols');
-    columns.prepend(pin);
-    console.log(pin);
+function addSearchItems(share_id) {
+	
+	var asin_list = ['B00A4SQIJA',
+	                 'B000OZC4TG',
+	                 'B0072O5UXE',
+	                 'B00BB5VQCE',
+	                 'B00A29WCA0'];
+	for (var i = 0; i < asin_list.length; i++) {
+		recommendedasin = asin_list[i];
+		  $.getJSON(
+				    'http://localhost:8080/product/' + recommendedasin,
+				    function(prodObj) {
+				    	  	var pin = createSearchItemWithRecommendButton(recommendedasin,prodObj,share_id);
+				    	    var columns = $('#search_cols');
+				    	    columns.prepend(pin);
+				    	    console.log(pin);
+				    
+				    });
+		}
+	
+	
+  
 }
 
 //--------------------------------------------Dwai---------------------------------------------------
@@ -222,7 +230,7 @@ function add_reco_item(recommended, recommendedasin, CNT, share_id) {
 		// add pin
 		addPinWithVotes(recommendedasin, prodObj, CNT, share_id);
 		//populating search tab
-		addSearchItems(recommendedasin, prodObj, CNT, share_id);    
+		//addSearchItems(recommendedasin, prodObj, CNT, share_id);    
 		
 		
 		image_url = prodObj['imgurl'];
@@ -294,5 +302,7 @@ function load_content() {
     document.asin = 'B0072O5UXE';
     document.user = 'haines';
     add_detail("cesar", "B0072O5UXE");
+    //Adds all items in products table to the search and reco tab
+    addSearchItems('2');
 
 }
